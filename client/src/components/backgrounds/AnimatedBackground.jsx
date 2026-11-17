@@ -1,5 +1,6 @@
 import { Component, Suspense, lazy } from 'react';
 import { useDeviceCapability } from '../../hooks/useDeviceCapability';
+import { useTheme } from '../../context/ThemeContext';
 import { CssGradientFallback } from './CssGradientFallback';
 
 const LazyShaderLiquid = lazy(() => import('./ShaderLiquidBackground'));
@@ -45,9 +46,10 @@ export function AnimatedBackground({
   className = '',
 }) {
   const { shouldUseFallback } = useDeviceCapability();
+  const { theme } = useTheme();
   const ActiveLayer = VARIANT_MAP[variant] || LazyShaderLiquid;
 
-  if (forceFallback || shouldUseFallback || variant === 'fallback') {
+  if (forceFallback || shouldUseFallback || variant === 'fallback' || theme === 'light') {
     return (
       <>
         <CssGradientFallback className={className} />

@@ -25,14 +25,27 @@ export function PageTransition({ children }) {
       return undefined;
     }
 
-    if (reducedMotion) {
+    const isSharedProjectTransition =
+      Boolean(location.state?.sharedTransition) ||
+      location.pathname.startsWith('/work/') ||
+      displayLocation.pathname.startsWith('/work/');
+
+    if (reducedMotion || isSharedProjectTransition) {
       setDisplayLocation(location);
-      if (lenis) {
-        lenis.scrollTo(0, { immediate: true });
+      if (location.state?.scrollToId) {
+        requestAnimationFrame(() => {
+          const target = document.querySelector(location.state.scrollToId);
+          target?.scrollIntoView({ behavior: 'auto' });
+          ScrollTrigger.refresh();
+        });
       } else {
-        window.scrollTo(0, 0);
+        if (lenis) {
+          lenis.scrollTo(0, { immediate: true });
+        } else {
+          window.scrollTo(0, 0);
+        }
+        requestAnimationFrame(() => ScrollTrigger.refresh());
       }
-      requestAnimationFrame(() => ScrollTrigger.refresh());
       return undefined;
     }
 

@@ -48,6 +48,40 @@
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+html[data-theme='light'] {
+  --bg-void: #f4f6fb;
+  --bg-elevated: #ffffff;
+  --bg-glass: rgba(255, 255, 255, 0.72);
+  --bg-glass-hover: rgba(255, 255, 255, 0.92);
+
+  --text-primary: #090c14;
+  --text-secondary: #414964;
+  --text-muted: #6c7491;
+
+  --accent-neon: #4d8f00;
+  --accent-neon-dim: rgba(77, 143, 0, 0.12);
+  --accent-neon-glow: rgba(77, 143, 0, 0.25);
+
+  --border-subtle: rgba(15, 23, 42, 0.09);
+  --border-strong: rgba(15, 23, 42, 0.18);
+  color-scheme: light;
+}
+
+html[data-theme='light'] .film-grain {
+  opacity: 0.022;
+}
+
+/* View Transitions API Circular Theme Reveal */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+::view-transition-new(root) {
+  z-index: 9999;
+}
+
 @theme {
   --font-display: 'Syne', ui-sans-serif, system-ui, sans-serif;
   --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
@@ -366,6 +400,113 @@
 
 .role-glitch {
   animation: glitchSkew 240ms steps(2, end);
+}
+
+@keyframes trailFade {
+  0% {
+    opacity: 0.72;
+    filter: blur(0px);
+  }
+  100% {
+    opacity: 0;
+    filter: blur(2px);
+    transform: translate(-50%, -50%) scale(0.55);
+  }
+}
+
+.animate-trail-fade {
+  animation: trailFade 460ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: transform, opacity;
+}
+
+/* 3D Flip Card Helpers */
+.perspective-1100 {
+  perspective: 1100px;
+}
+
+.preserve-3d {
+  transform-style: preserve-3d;
+}
+
+.backface-hidden {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.rotate-y-180 {
+  transform: rotateY(180deg);
+}
+
+/* Form Validation Shake & Checkmark Draw */
+@keyframes formShake {
+  0%, 100% {
+    transform: translate3d(0, 0, 0);
+  }
+  20% {
+    transform: translate3d(-7px, 0, 0);
+  }
+  40% {
+    transform: translate3d(6px, 0, 0);
+  }
+  60% {
+    transform: translate3d(-4px, 0, 0);
+  }
+  80% {
+    transform: translate3d(3px, 0, 0);
+  }
+}
+
+.animate-shake {
+  animation: formShake 420ms cubic-bezier(0.36, 0.07, 0.19, 0.97);
+}
+
+@keyframes strokeDraw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.animate-stroke-draw {
+  animation: strokeDraw 650ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes rocketLaunch {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 1;
+  }
+  20% {
+    transform: translate3d(-1px, 3px, 0) scale(0.95);
+    opacity: 1;
+  }
+  100% {
+    transform: translate3d(0, -140px, 0) scale(1.1);
+    opacity: 0;
+  }
+}
+
+.animate-rocket-launch {
+  animation: rocketLaunch 680ms cubic-bezier(0.55, 0.055, 0.675, 0.19) forwards;
+}
+
+@keyframes exhaustTrail {
+  0% {
+    transform: scaleY(0.2);
+    opacity: 0.95;
+  }
+  55% {
+    transform: scaleY(1.4);
+    opacity: 0.85;
+  }
+  100% {
+    transform: scaleY(0.1);
+    opacity: 0;
+  }
+}
+
+.animate-exhaust-trail {
+  animation: exhaustTrail 680ms ease-out forwards;
+  transform-origin: top center;
 }
 
 /* Custom Cursor Active State (fine pointer only) */

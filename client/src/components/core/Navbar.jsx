@@ -2,8 +2,40 @@ import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useSmoothScroll } from '../../context/SmoothScrollContext';
+import { useTheme } from '../../context/ThemeContext';
+import { useSound } from '../../context/SoundContext';
 import { useReducedMotion } from '../../hooks/useReducedMotion';
 import { personalInfo, socials } from '../../data/content';
+
+function SunIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.75">
+      <circle cx="12" cy="12" r="4" />
+      <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function MoonIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.75">
+      <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function SoundIcon({ muted }) {
+  return (
+    <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.75">
+      <path d="M11 5 6 9H3v6h3l5 4V5Z" strokeLinejoin="round" />
+      {muted ? (
+        <path d="m16 9 5 6m0-6-5 6" strokeLinecap="round" />
+      ) : (
+        <path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" strokeLinecap="round" />
+      )}
+    </svg>
+  );
+}
 
 const NAV_LINKS = [
   { index: '01', label: 'Home', to: '/' },
@@ -19,6 +51,8 @@ export function Navbar() {
   const navigate = useNavigate();
   const reducedMotion = useReducedMotion();
   const { lockScroll, unlockScroll } = useSmoothScroll();
+  const { theme, toggleTheme } = useTheme();
+  const { muted, toggleMute } = useSound();
 
   useEffect(() => {
     if (open) {
@@ -68,10 +102,37 @@ export function Navbar() {
             </span>
           </Link>
 
-          <div className="pointer-events-auto flex items-center gap-3">
-            <span className="hidden rounded-full border border-[var(--border-subtle)] bg-[rgba(6,7,11,0.65)] px-3.5 py-1.5 font-mono text-[11px] tracking-[0.14em] uppercase text-[var(--text-secondary)] backdrop-blur-xl md:inline-flex">
+          <div className="pointer-events-auto flex items-center gap-2.5 sm:gap-3">
+            <span className="hidden rounded-full border border-[var(--border-subtle)] bg-[var(--bg-glass)] px-3.5 py-1.5 font-mono text-[11px] tracking-[0.14em] uppercase text-[var(--text-secondary)] backdrop-blur-xl md:inline-flex">
               {personalInfo.availability.includes('internship') ? 'Open to Internships' : 'Available'}
             </span>
+
+            {/* Sound Mute Toggle (OFF by default) */}
+            <button
+              type="button"
+              onClick={toggleMute}
+              aria-pressed={!muted}
+              aria-label={muted ? 'Enable subtle UI sounds' : 'Mute UI sounds'}
+              title={muted ? 'Sound: Off (click to enable)' : 'Sound: On'}
+              className={`flex h-11 w-11 cursor-pointer items-center justify-center rounded-full border backdrop-blur-xl transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-neon)] ${
+                muted
+                  ? 'border-[var(--border-subtle)] bg-[var(--bg-glass)] text-[var(--text-muted)] hover:border-[var(--border-strong)] hover:text-[var(--text-primary)]'
+                  : 'border-[var(--accent-neon)] bg-[var(--accent-neon-dim)] text-[var(--accent-neon)]'
+              }`}
+            >
+              <SoundIcon muted={muted} />
+            </button>
+
+            {/* Dark / Light Theme Toggle (View Transitions circular reveal) */}
+            <button
+              type="button"
+              onClick={toggleTheme}
+              aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`}
+              title={`Theme: ${theme === 'dark' ? 'Dark' : 'Light'}`}
+              className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-full border border-[var(--border-subtle)] bg-[var(--bg-glass)] text-[var(--text-primary)] backdrop-blur-xl transition-colors duration-200 hover:border-[var(--accent-neon)] hover:text-[var(--accent-neon)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-neon)]"
+            >
+              {theme === 'dark' ? <SunIcon /> : <MoonIcon />}
+            </button>
 
             {/* Morphing Hamburger Button */}
             <button
@@ -79,7 +140,7 @@ export function Navbar() {
               onClick={() => setOpen((prev) => !prev)}
               aria-expanded={open}
               aria-label={open ? 'Close navigation menu' : 'Open navigation menu'}
-              className="group relative flex h-11 w-11 cursor-pointer items-center justify-center rounded-full border border-[var(--border-strong)] bg-[rgba(12,14,22,0.78)] backdrop-blur-xl transition-colors duration-200 hover:border-[var(--accent-neon)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-neon)]"
+              className="group relative flex h-11 w-11 cursor-pointer items-center justify-center rounded-full border border-[var(--border-strong)] bg-[var(--bg-glass)] backdrop-blur-xl transition-colors duration-200 hover:border-[var(--accent-neon)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-neon)]"
             >
               <div className="relative flex h-4 w-5 flex-col items-center justify-center">
                 <span
@@ -131,7 +192,7 @@ export function Navbar() {
                 : { clipPath: 'inset(0% 0% 100% 0%)', opacity: 1 }
             }
             transition={{ duration: reducedMotion ? 0.12 : 0.62, ease: [0.16, 1, 0.3, 1] }}
-            className="fixed inset-0 z-40 flex flex-col justify-between overflow-y-auto bg-[#06070B]/96 px-6 pt-28 pb-10 backdrop-blur-2xl sm:px-12 lg:px-20"
+            className="fixed inset-0 z-40 flex flex-col justify-between overflow-y-auto bg-[var(--bg-void)]/96 px-6 pt-28 pb-10 backdrop-blur-2xl sm:px-12 lg:px-20"
           >
             {/* Subtle Ambient Mesh Inside Menu */}
             <div
