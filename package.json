@@ -1,0 +1,18 @@
+{
+  "name": "aryan-kothari-portfolio",
+  "version": "1.0.0",
+  "private": true,
+  "description": "MERN stack developer portfolio monorepo for Aryan Kothari",
+  "scripts": {
+    "dev": "concurrently -n CLIENT,SERVER -c cyan,green \"npm run dev --prefix client\" \"npm run dev --prefix server\"",
+    "client": "npm run dev --prefix client",
+    "server": "npm run dev --prefix server",
+    "build": "npm run build --prefix client",
+    "start": "npm run start --prefix server",
+    "install:all": "npm install && npm install --prefix client && npm install --prefix server"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
+

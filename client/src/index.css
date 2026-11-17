@@ -1,0 +1,304 @@
+@import "tailwindcss";
+
+:root {
+  /* Core Surfaces */
+  --bg-void: #06070b;
+  --bg-elevated: #0c0e15;
+  --bg-glass: rgba(13, 16, 26, 0.62);
+  --bg-glass-hover: rgba(18, 22, 36, 0.78);
+
+  /* Text Hierarchy */
+  --text-primary: #f4f6fb;
+  --text-secondary: #98a0b8;
+  --text-muted: #5d647b;
+
+  /* Bold Neon Accent (Electric Volt) */
+  --accent-neon: #b8ff2e;
+  --accent-neon-dim: rgba(184, 255, 46, 0.14);
+  --accent-neon-glow: rgba(184, 255, 46, 0.35);
+
+  /* Secondary Spectral Gradient (Cyan -> Cobalt -> Violet) */
+  --grad-start: #00f0ff;
+  --grad-mid: #5b6cff;
+  --grad-end: #a855f7;
+  --gradient-secondary: linear-gradient(135deg, var(--grad-start) 0%, var(--grad-mid) 52%, var(--grad-end) 100%);
+
+  /* Hairlines & Borders */
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.16);
+
+  /* Typography */
+  --font-display: 'Syne', ui-sans-serif, system-ui, sans-serif;
+  --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+
+  /* Fluid Type Scale (clamp) */
+  --text-hero: clamp(2.75rem, 6vw + 1rem, 6.25rem);
+  --text-display: clamp(2rem, 3.8vw + 0.75rem, 4rem);
+  --text-h2: clamp(1.625rem, 2.4vw + 0.75rem, 2.75rem);
+  --text-h3: clamp(1.2rem, 1.3vw + 0.65rem, 1.65rem);
+  --text-body-lg: clamp(1.0625rem, 0.45vw + 0.9rem, 1.25rem);
+  --text-body: clamp(0.9375rem, 0.2vw + 0.875rem, 1.0625rem);
+  --text-sm: clamp(0.8125rem, 0.12vw + 0.775rem, 0.875rem);
+  --text-xs: clamp(0.7rem, 0.08vw + 0.68rem, 0.75rem);
+
+  /* Radii & Motion */
+  --radius-card: 1.25rem;
+  --radius-pill: 9999px;
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@theme {
+  --font-display: 'Syne', ui-sans-serif, system-ui, sans-serif;
+  --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+
+  --color-void: #06070b;
+  --color-elevated: #0c0e15;
+  --color-neon: #b8ff2e;
+  --color-cyan-glow: #00f0ff;
+  --color-cobalt-glow: #5b6cff;
+  --color-violet-glow: #a855f7;
+}
+
+@layer base {
+  html {
+    background-color: var(--bg-void);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    font-size: 16px;
+    scroll-behavior: smooth;
+    color-scheme: dark;
+  }
+
+  body {
+    min-height: 100vh;
+    background-color: var(--bg-void);
+    color: var(--text-primary);
+    font-size: var(--text-body);
+    line-height: 1.65;
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    letter-spacing: -0.025em;
+    line-height: 1.08;
+  }
+}
+
+/* Fluid Typography Utility Classes */
+.type-hero {
+  font-family: var(--font-display);
+  font-size: var(--text-hero);
+  font-weight: 800;
+  line-height: 0.98;
+  letter-spacing: -0.035em;
+}
+
+.type-display {
+  font-family: var(--font-display);
+  font-size: var(--text-display);
+  font-weight: 700;
+  line-height: 1.04;
+  letter-spacing: -0.03em;
+}
+
+.type-h2 {
+  font-family: var(--font-display);
+  font-size: var(--text-h2);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.025em;
+}
+
+.type-h3 {
+  font-family: var(--font-display);
+  font-size: var(--text-h3);
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+.type-body-lg {
+  font-size: var(--text-body-lg);
+  line-height: 1.6;
+}
+
+.type-body {
+  font-size: var(--text-body);
+  line-height: 1.65;
+}
+
+.type-sm {
+  font-size: var(--text-sm);
+  line-height: 1.5;
+}
+
+.type-xs {
+  font-size: var(--text-xs);
+  line-height: 1.4;
+}
+
+/* Gradient & Neon Text Helpers */
+.text-gradient-secondary {
+  background: var(--gradient-secondary);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.bg-gradient-secondary {
+  background: var(--gradient-secondary);
+}
+
+/* Subtle Architectural Grid */
+.bg-grid-subtle {
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.028) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.028) 1px, transparent 1px);
+  background-size: 64px 64px;
+  mask-image: radial-gradient(ellipse 80% 70% at 50% 30%, #000 35%, transparent 100%);
+}
+
+/* Film-Grain Noise Overlay (inline SVG fractalNoise) */
+.film-grain {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 240 240' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 180px 180px;
+  opacity: 0.038;
+  mix-blend-mode: overlay;
+}
+
+/* Animated Gradient Mesh Orbs */
+@keyframes meshDriftA {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  33% {
+    transform: translate3d(4vw, -3vh, 0) scale(1.06);
+  }
+  66% {
+    transform: translate3d(-3vw, 4vh, 0) scale(0.95);
+  }
+}
+
+@keyframes meshDriftB {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(-5vw, -4vh, 0) scale(1.08);
+  }
+}
+
+.mesh-orb-a {
+  animation: meshDriftA 22s ease-in-out infinite;
+  will-change: transform;
+}
+
+.mesh-orb-b {
+  animation: meshDriftB 28s ease-in-out infinite;
+  will-change: transform;
+}
+
+/* Glassmorphism Spotlight Card (cursor-tracking radial-gradient border + surface sheen) */
+.spotlight-card {
+  --mouse-x: -999px;
+  --mouse-y: -999px;
+  --spotlight-opacity: 0;
+  position: relative;
+  border-radius: var(--radius-card);
+  background: var(--bg-glass);
+  backdrop-filter: blur(20px) saturate(135%);
+  -webkit-backdrop-filter: blur(20px) saturate(135%);
+  border: 1px solid var(--border-subtle);
+  transition:
+    border-color 280ms var(--ease-out-expo),
+    background-color 280ms var(--ease-out-expo),
+    transform 320ms var(--ease-out-expo);
+}
+
+.spotlight-card:hover {
+  background: var(--bg-glass-hover);
+  --spotlight-opacity: 1;
+}
+
+/* Glowing Border Layer masked to 1px perimeter */
+.spotlight-card::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: radial-gradient(
+    360px circle at var(--mouse-x) var(--mouse-y),
+    rgba(184, 255, 46, 0.72),
+    rgba(0, 240, 255, 0.35) 38%,
+    rgba(168, 85, 247, 0.16) 62%,
+    transparent 80%
+  );
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  opacity: var(--spotlight-opacity);
+  transition: opacity 280ms var(--ease-out-expo);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Inner Surface Radial Spotlight */
+.spotlight-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(
+    440px circle at var(--mouse-x) var(--mouse-y),
+    rgba(184, 255, 46, 0.075),
+    rgba(91, 108, 255, 0.045) 45%,
+    transparent 75%
+  );
+  opacity: var(--spotlight-opacity);
+  transition: opacity 280ms var(--ease-out-expo);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Custom Cursor Active State (fine pointer only) */
+html.has-custom-cursor,
+html.has-custom-cursor * {
+  cursor: none !important;
+}
+
+/* Global Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .mesh-orb-a,
+  .mesh-orb-b {
+    animation: none !important;
+    transform: none !important;
+  }
+
+  .spotlight-card:hover {
+    transform: none !important;
+    border-color: var(--border-strong);
+  }
+}
