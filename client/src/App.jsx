@@ -9,8 +9,11 @@ import {
   Preloader,
   ScrollIndicators,
 } from './components/core';
+import { AnimatedBackground } from './components/backgrounds';
+import { HeroSection } from './components/sections/HeroSection';
+import { AboutSection } from './components/sections/AboutSection';
+import { SkillsSection } from './components/sections/SkillsSection';
 import {
-  BackgroundCanvas,
   Button,
   Container,
   SectionHeading,
@@ -21,17 +24,18 @@ import DesignSystemPage from './pages/DesignSystemPage';
 import { personalInfo, projects } from './data/content';
 
 const PLACEHOLDER_SECTIONS = [
-  { id: 'hero', label: 'HERO', title: personalInfo.name, copy: personalInfo.title },
-  { id: 'about', label: 'ABOUT', title: 'About Architecture', copy: '02 // Bio & Engineering Focus (UI pending)' },
-  { id: 'skills', label: 'SKILLS', title: 'Technical Stack', copy: '03 // MERN, Java DSA & AI Workflows (UI pending)' },
   { id: 'projects', label: 'WORK', title: 'Selected Projects', copy: '04 // Hover the preview card below to test the VIEW cursor.' },
   { id: 'experience', label: 'EXP', title: 'Experience & Education', copy: '05 // E-Connect Pvt. Ltd. & WIT Solapur (UI pending)' },
   { id: 'contact', label: 'CONTACT', title: 'Get In Touch', copy: `06 // ${personalInfo.email}` },
 ];
 
-function PlaceholderHome() {
+function PlaceholderHome({ heroRevealReady }) {
   return (
     <main className="relative z-10">
+      <HeroSection revealReady={heroRevealReady} />
+      <AboutSection />
+      <SkillsSection />
+
       {PLACEHOLDER_SECTIONS.map((sec, idx) => (
         <section
           key={sec.id}
@@ -42,22 +46,11 @@ function PlaceholderHome() {
           <Container>
             <div className="space-y-8">
               <SectionHeading
-                index={`0${idx + 1}`}
+                index={`0${idx + 4}`}
                 eyebrow={sec.label}
                 title={sec.title}
                 subtitle={sec.copy}
               />
-
-              {sec.id === 'hero' && (
-                <div className="flex flex-wrap gap-3">
-                  <Button to="/work" variant="primary" size="md">
-                    Test Route Wipe (/work) →
-                  </Button>
-                  <Button to="/design" variant="secondary" size="md">
-                    View /design System
-                  </Button>
-                </div>
-              )}
 
               {sec.id === 'projects' && (
                 <div className="grid gap-6 md:grid-cols-2">
@@ -107,8 +100,15 @@ function PlaceholderSubRoute({ index, title, subtitle }) {
 
 export default function App() {
   const [preloaderDone, setPreloaderDone] = useState(false);
+  const [heroRevealReady, setHeroRevealReady] = useState(false);
+  const [bgVariant, setBgVariant] = useState('shader');
+
+  const handleRevealStart = useCallback(() => {
+    setHeroRevealReady(true);
+  }, []);
 
   const handlePreloaderComplete = useCallback(() => {
+    setHeroRevealReady(true);
     setPreloaderDone(true);
   }, []);
 
@@ -116,17 +116,19 @@ export default function App() {
     <MotionConfig reducedMotion="user">
       <SmoothScrollProvider>
         <div className="relative min-h-screen bg-[var(--bg-void)] text-[var(--text-primary)]">
-          <BackgroundCanvas />
+          <AnimatedBackground variant={bgVariant} />
           <CustomCursor />
           <ScrollIndicators />
           <Navbar />
 
-          {!preloaderDone && <Preloader onComplete={handlePreloaderComplete} />}
+          {!preloaderDone && (
+            <Preloader onRevealStart={handleRevealStart} onComplete={handlePreloaderComplete} />
+          )}
 
           <PageTransition>
             {(displayLocation) => (
               <Routes location={displayLocation}>
-                <Route path="/" element={<PlaceholderHome />} />
+                <Route path="/" element={<PlaceholderHome heroRevealReady={heroRevealReady} />} />
                 <Route
                   path="/work"
                   element={
@@ -157,8 +159,13 @@ export default function App() {
                     />
                   }
                 />
-                <Route path="/design" element={<DesignSystemPage />} />
-                <Route path="*" element={<PlaceholderHome />} />
+                <Route
+                  path="/design"
+                  element={
+                    <DesignSystemPage bgVariant={bgVariant} onSelectBgVariant={setBgVariant} />
+                  }
+                />
+                <Route path="*" element={<PlaceholderHome heroRevealReady={heroRevealReady} />} />
               </Routes>
             )}
           </PageTransition>

@@ -6,7 +6,16 @@ import {
   Tag,
 } from '../components/ui';
 import { useReducedMotion } from '../hooks/useReducedMotion';
+import { useDeviceCapability } from '../hooks/useDeviceCapability';
 import { about, personalInfo, projects, skills } from '../data/content';
+
+const BACKGROUND_VARIANTS = [
+  { id: 'shader', label: 'WebGL Liquid Shader', desc: 'Interactive FBM noise reacting to cursor' },
+  { id: 'particles', label: 'R3F Particle Field', desc: 'Drifting points with cursor repulsion' },
+  { id: 'shapes', label: '3D Geometric Shapes', desc: 'Torus & icosahedron with scroll parallax' },
+  { id: 'grid', label: 'Spotlight Grid', desc: 'Animated grid with cursor spotlight' },
+  { id: 'fallback', label: 'CSS Fallback', desc: 'Zero-WebGL low-end & mobile gradient' },
+];
 
 const COLOR_TOKENS = [
   {
@@ -152,8 +161,9 @@ function ArrowIcon() {
   );
 }
 
-export default function DesignSystemPage() {
+export default function DesignSystemPage({ bgVariant = 'shader', onSelectBgVariant }) {
   const reducedMotion = useReducedMotion();
+  const { isMobile, isLowEnd, hasWebGL, shouldUseFallback } = useDeviceCapability();
 
   return (
     <div className="relative z-10 min-h-screen pt-24 pb-28">
@@ -441,6 +451,55 @@ export default function DesignSystemPage() {
                 </Container>
               ))}
             </div>
+          </Container>
+        </section>
+
+        {/* 06 // Lazy-Loaded Animated Backgrounds */}
+        <section>
+          <Container className="space-y-8">
+            <SectionHeading
+              index="06"
+              eyebrow="Background Engine"
+              title="Lazy-Loaded"
+              accent="WebGL & CSS Layers"
+              subtitle="Switch active background layers live. Three.js & R3F scenes are code-split, dispose geometries/materials/GL contexts on unmount, and automatically fall back to pure CSS on mobile, low-end, or reduced-motion devices."
+            />
+
+            <SpotlightCard className="space-y-6">
+              <div className="flex flex-wrap items-center gap-2.5">
+                <Tag variant={hasWebGL ? 'accent' : 'outline'}>
+                  WebGL: {hasWebGL ? 'Supported' : 'Unavailable'}
+                </Tag>
+                <Tag variant="default">Mobile: {isMobile ? 'Yes' : 'No'}</Tag>
+                <Tag variant="default">Low-End: {isLowEnd ? 'Yes' : 'No'}</Tag>
+                <Tag variant={shouldUseFallback ? 'accent' : 'gradient'}>
+                  Auto Mode: {shouldUseFallback ? 'CSS Fallback' : 'Full WebGL'}
+                </Tag>
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+                {BACKGROUND_VARIANTS.map((item) => {
+                  const active = bgVariant === item.id;
+                  return (
+                    <button
+                      key={item.id}
+                      type="button"
+                      onClick={() => onSelectBgVariant?.(item.id)}
+                      className={`cursor-pointer rounded-xl border p-4 text-left transition-all duration-200 ${
+                        active
+                          ? 'border-[var(--accent-neon)] bg-[var(--accent-neon-dim)]'
+                          : 'border-[var(--border-subtle)] bg-white/[0.02] hover:border-[var(--border-strong)]'
+                      }`}
+                    >
+                      <p className="font-display text-sm font-semibold text-[var(--text-primary)]">
+                        {item.label}
+                      </p>
+                      <p className="mt-1 text-xs text-[var(--text-secondary)]">{item.desc}</p>
+                    </button>
+                  );
+                })}
+              </div>
+            </SpotlightCard>
           </Container>
         </section>
       </main>

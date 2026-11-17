@@ -3,7 +3,7 @@ import gsap from 'gsap';
 import { useReducedMotion } from '../../hooks/useReducedMotion';
 import { useSmoothScroll } from '../../context/SmoothScrollContext';
 
-export function Preloader({ onComplete }) {
+export function Preloader({ onRevealStart, onComplete }) {
   const reducedMotion = useReducedMotion();
   const { lockScroll, unlockScroll } = useSmoothScroll();
 
@@ -18,6 +18,7 @@ export function Preloader({ onComplete }) {
   useEffect(() => {
     if (reducedMotion) {
       unlockScroll();
+      onRevealStart?.();
       onComplete?.();
       return undefined;
     }
@@ -119,6 +120,9 @@ export function Preloader({ onComplete }) {
             clipPath: 'inset(0% 0% 100% 0%)',
             duration: 0.78,
             ease: 'expo.inOut',
+            onStart: () => {
+              onRevealStart?.();
+            },
           },
           1.7
         );
@@ -128,7 +132,7 @@ export function Preloader({ onComplete }) {
       ctx.revert();
       unlockScroll();
     };
-  }, [reducedMotion, lockScroll, unlockScroll, onComplete]);
+  }, [reducedMotion, lockScroll, unlockScroll, onRevealStart, onComplete]);
 
   if (reducedMotion) return null;
 
