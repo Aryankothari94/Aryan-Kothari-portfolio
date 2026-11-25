@@ -20,7 +20,7 @@ export function Tag({
 
   return (
     <span
-      className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 font-mono text-[11px] font-medium tracking-wider uppercase transition-colors duration-200 ${variantClass} ${className}`.trim()}
+      className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 font-mono text-xs font-medium tracking-wider uppercase transition-colors duration-200 ${variantClass} ${className}`.trim()}
       {...props}
     >
       {dot && (

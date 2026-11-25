@@ -1,9 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
-import meCutout from '../../assets/me-cutout.webp';
 import meOriginal from '../../assets/me-original.webp';
+import meOriginal480 from '../../assets/me-original-480.webp';
 import { useDeviceCapability } from '../../hooks/useDeviceCapability';
 import { TechOrbitIcons } from './TechOrbitIcons';
+import { MOTION } from '../../config/motion';
+
+const CUTOUT_480 = '/images/me-cutout-480.webp';
+const CUTOUT_640 = '/images/me-cutout-640.webp';
 
 export function HeroPortrait({ revealReady, alt }) {
   const { isMobile, reducedMotion } = useDeviceCapability();
@@ -12,29 +16,27 @@ export function HeroPortrait({ revealReady, alt }) {
   const stageRef = useRef(null);
   const tiltRef = useRef(null);
   const clipRef = useRef(null);
-  const [imgSrc, setImgSrc] = useState(meCutout);
+  const [imgSrc, setImgSrc] = useState(CUTOUT_640);
   const isFallbackImg = imgSrc === meOriginal;
 
-  // Clip-path rise-up reveal on load
+  // Smooth rise-up reveal on load (keeps <img> unclipped for fast LCP)
   useEffect(() => {
     if (!revealReady || !clipRef.current) return undefined;
 
     if (reducedMotion) {
-      gsap.set(clipRef.current, { clipPath: 'inset(0% 0% 0% 0%)', opacity: 1, y: 0 });
+      gsap.set(clipRef.current, { opacity: 1, y: 0 });
       return undefined;
     }
 
     const ctx = gsap.context(() => {
       gsap.fromTo(
         clipRef.current,
-        { clipPath: 'inset(100% 0% 0% 0%)', y: 36, opacity: 0.25 },
+        { y: 18, scale: 0.98 },
         {
-          clipPath: 'inset(0% 0% 0% 0%)',
           y: 0,
-          opacity: 1,
-          duration: 1.05,
-          delay: 0.08,
-          ease: 'expo.out',
+          scale: 1,
+          duration: MOTION.timing.revealDuration,
+          ease: MOTION.easing.gsapSnappy,
         }
       );
     }, stageRef);
@@ -66,8 +68,8 @@ export function HeroPortrait({ revealReady, alt }) {
     document.documentElement.addEventListener('mouseleave', onMouseLeave);
 
     const tick = () => {
-      curX += (targetX - curX) * 0.08;
-      curY += (targetY - curY) * 0.08;
+      curX += (targetX - curX) * 0.18;
+      curY += (targetY - curY) * 0.18;
 
       if (tiltRef.current) {
         const tx = (curX * 11).toFixed(2);
@@ -145,16 +147,24 @@ export function HeroPortrait({ revealReady, alt }) {
           />
         </svg>
 
-        {/* Portrait Cutout with Clip-Path Rise-Up Reveal + Duotone-to-Colour Hover */}
+        {/* Portrait Cutout with Rise-Up Reveal + Duotone-to-Colour Hover */}
         <div
           ref={clipRef}
-          style={reducedMotion ? undefined : { clipPath: 'inset(100% 0% 0% 0%)' }}
-          className="group relative z-20 overflow-hidden will-change-[clip-path,transform]"
+          className="group relative z-20 overflow-hidden will-change-transform"
         >
           <div className="relative">
             <img
               src={imgSrc}
+              srcSet={
+                isFallbackImg
+                  ? `${meOriginal480} 480w, ${meOriginal} 927w`
+                  : `${CUTOUT_480} 480w, ${CUTOUT_640} 640w`
+              }
+              sizes="(max-width: 640px) 270px, (max-width: 1024px) 380px, 430px"
               alt={alt}
+              width={640}
+              height={707}
+              fetchPriority="high"
               onError={() => {
                 if (!isFallbackImg) setImgSrc(meOriginal);
               }}

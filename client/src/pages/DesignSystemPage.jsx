@@ -136,7 +136,7 @@ const TYPE_SCALE = [
     className: 'type-sm text-[var(--text-secondary)]',
     token: '--text-sm',
     formula: 'clamp(0.8125rem, 0.12vw + 0.775rem, 0.875rem)',
-    sample: `${personalInfo.location} · ${personalInfo.email}`,
+    sample: `${personalInfo.title} · ${personalInfo.email}`,
   },
   {
     label: 'Micro / Mono',
@@ -358,7 +358,7 @@ export default function DesignSystemPage({ bgVariant = 'shader', onSelectBgVaria
                     Skill Tag Cluster (from content.js)
                   </p>
                   <div className="flex flex-wrap gap-2">
-                    {[...skills.languages, ...skills.databases, ...skills.backend].map((skill) => (
+                    {skills.core.map((skill) => (
                       <Tag key={skill} variant="default">
                         {skill}
                       </Tag>
@@ -409,7 +409,7 @@ export default function DesignSystemPage({ bgVariant = 'shader', onSelectBgVaria
                     </div>
 
                     <p className="text-sm leading-relaxed text-[var(--text-secondary)]">
-                      {project.highlights[0]}
+                      {project.oneLiner}
                     </p>
                   </div>
 

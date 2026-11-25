@@ -43,7 +43,7 @@ const FRAGMENT_SHADER = `
     float value = 0.0;
     float amp = 0.5;
     mat2 rot = mat2(0.8, 0.6, -0.6, 0.8);
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < 3; i++) {
       value += amp * noise(p);
       p = rot * p * 2.02;
       amp *= 0.5;
@@ -114,7 +114,7 @@ export default function ShaderLiquidBackground({ className = '' }) {
       alpha: false,
       powerPreference: 'high-performance',
     });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
+    renderer.setPixelRatio(0.65);
     renderer.setSize(width, height);
     renderer.domElement.style.display = 'block';
     renderer.domElement.style.width = '100%';
@@ -162,7 +162,7 @@ export default function ShaderLiquidBackground({ className = '' }) {
     const onResize = () => {
       const nextW = container.clientWidth || window.innerWidth;
       const nextH = container.clientHeight || window.innerHeight;
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
+      renderer.setPixelRatio(0.65);
       renderer.setSize(nextW, nextH);
       uniforms.uResolution.value.set(nextW, nextH);
     };
@@ -184,7 +184,7 @@ export default function ShaderLiquidBackground({ className = '' }) {
       prevTime = now;
 
       uniforms.uTime.value += dt;
-      uniforms.uMouse.value.lerp(targetMouse, 0.08);
+      uniforms.uMouse.value.lerp(targetMouse, 0.18);
       mouseEnergy *= 0.94;
       uniforms.uMouseEnergy.value = mouseEnergy;
 

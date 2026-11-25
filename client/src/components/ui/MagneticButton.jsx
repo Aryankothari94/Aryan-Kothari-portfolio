@@ -45,7 +45,7 @@ export function MagneticButton({
   };
 
   const isPrimary = variant === 'primary';
-  const baseClasses = `group relative inline-flex h-12 items-center justify-center overflow-hidden rounded-full px-7 font-sans text-sm font-semibold tracking-wide transition-[transform,border-color,box-shadow] duration-300 ease-[var(--ease-out-expo)] cursor-pointer select-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-neon)] ${
+  const baseClasses = `group relative inline-flex h-12 items-center justify-center overflow-hidden rounded-full px-7 font-sans text-sm font-semibold tracking-wide transition-[transform,border-color,box-shadow] duration-200 ease-[var(--ease-out-expo)] cursor-pointer select-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-neon)] ${
     isPrimary
       ? 'border border-[var(--accent-neon)] bg-[var(--accent-neon)] text-[#06070B] shadow-[0_0_28px_rgba(184,255,46,0.28)] hover:shadow-[0_0_38px_rgba(0,240,255,0.45)]'
       : 'border border-[var(--border-strong)] bg-[rgba(13,16,26,0.72)] text-[var(--text-primary)] backdrop-blur-xl hover:border-[var(--accent-neon)]'
@@ -56,7 +56,7 @@ export function MagneticButton({
       {/* Fill-wipe hover layer */}
       <span
         aria-hidden="true"
-        className={`pointer-events-none absolute inset-0 translate-y-full rounded-full transition-transform duration-400 ease-[var(--ease-out-expo)] group-hover:translate-y-0 motion-reduce:hidden ${
+        className={`pointer-events-none absolute inset-0 translate-y-full rounded-full transition-transform duration-250 ease-[var(--ease-out-expo)] group-hover:translate-y-0 motion-reduce:hidden ${
           isPrimary
             ? 'bg-gradient-to-r from-[#00F0FF] via-[#5B6CFF] to-[#A855F7]'
             : 'bg-[var(--accent-neon)]'

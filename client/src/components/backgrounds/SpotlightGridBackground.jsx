@@ -29,8 +29,8 @@ export default function SpotlightGridBackground({ className = '' }) {
     window.addEventListener('pointermove', onPointerMove, { passive: true });
 
     const tick = () => {
-      currentX += (targetX - currentX) * 0.12;
-      currentY += (targetY - currentY) * 0.12;
+      currentX += (targetX - currentX) * 0.24;
+      currentY += (targetY - currentY) * 0.24;
       el.style.setProperty('--grid-mx', `${currentX.toFixed(1)}px`);
       el.style.setProperty('--grid-my', `${currentY.toFixed(1)}px`);
       rafId = requestAnimationFrame(tick);

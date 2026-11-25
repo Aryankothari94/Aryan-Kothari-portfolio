@@ -1,17 +1,22 @@
 import { useEffect, useState } from 'react';
 import { useReducedMotion } from './useReducedMotion';
 
+let cachedWebGLSupport = null;
+
 function detectWebGLSupport() {
+  if (cachedWebGLSupport !== null) return cachedWebGLSupport;
   if (typeof window === 'undefined' || typeof document === 'undefined') return false;
   try {
     const canvas = document.createElement('canvas');
-    return Boolean(
-      window.WebGLRenderingContext &&
-        (canvas.getContext('webgl2') || canvas.getContext('webgl'))
-    );
+    const gl = canvas.getContext('webgl2') || canvas.getContext('webgl');
+    cachedWebGLSupport = Boolean(window.WebGLRenderingContext && gl);
+    if (gl && typeof gl.getExtension === 'function') {
+      gl.getExtension('WEBGL_lose_context')?.loseContext();
+    }
   } catch {
-    return false;
+    cachedWebGLSupport = false;
   }
+  return cachedWebGLSupport;
 }
 
 function evaluateDeviceCapability() {
@@ -56,4 +61,3 @@ export function useDeviceCapability() {
     shouldUseFallback,
   };
 }
-

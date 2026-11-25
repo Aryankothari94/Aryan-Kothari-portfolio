@@ -2,24 +2,15 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { skills } from '../../data/content';
 import { useReducedMotion } from '../../hooks/useReducedMotion';
 
-const ALL_SKILLS = [
-  ...skills.languages.map((name) => ({ name, group: 'lang' })),
-  ...skills.frontend.map((name) => ({ name, group: 'ui' })),
-  ...skills.backend.map((name) => ({ name, group: 'api' })),
-  ...skills.databases.map((name) => ({ name, group: 'db' })),
-  ...skills.tools.map((name) => ({ name, group: 'tool' })),
-  ...skills.coreConcepts.map((name) => ({ name, group: 'core' })),
-];
-
 function buildFibonacciSphere(items) {
   const n = items.length;
   const goldenAngle = Math.PI * (3 - Math.sqrt(5));
-  return items.map((item, i) => {
+  return items.map((name, i) => {
     const y = 1 - (i / Math.max(n - 1, 1)) * 2;
     const radiusAtY = Math.sqrt(Math.max(0, 1 - y * y));
     const theta = goldenAngle * i;
     return {
-      ...item,
+      name,
       x: Math.cos(theta) * radiusAtY,
       y,
       z: Math.sin(theta) * radiusAtY,
@@ -33,7 +24,7 @@ export function SkillTagSphere() {
   const tagRefs = useRef([]);
   const [dragging, setDragging] = useState(false);
 
-  const points = useMemo(() => buildFibonacciSphere(ALL_SKILLS), []);
+  const points = useMemo(() => buildFibonacciSphere(skills.core.slice(0, 10)), []);
 
   const rotRef = useRef({
     vx: 0.0022,
@@ -48,13 +39,18 @@ export function SkillTagSphere() {
     const nodes = tagRefs.current.filter(Boolean);
     if (nodes.length === 0) return undefined;
 
-    // Mutable local copy of 3D unit vectors
     const coords = points.map((p) => ({ x: p.x, y: p.y, z: p.z }));
     let rafId = 0;
+    let inView = false;
 
-    const getRadius = () => (window.innerWidth < 640 ? 132 : 196);
+    const getRadius = () => (window.innerWidth < 640 ? 116 : 165);
 
     const renderFrame = () => {
+      if (!inView) {
+        rafId = 0;
+        return;
+      }
+
       const r = rotRef.current;
       const sphereRadius = getRadius();
 
@@ -77,10 +73,8 @@ export function SkillTagSphere() {
 
       for (let i = 0; i < coords.length; i += 1) {
         const c = coords[i];
-        // Rotate around Y
         const x1 = c.x * cosY - c.z * sinY;
         const z1 = c.z * cosY + c.x * sinY;
-        // Rotate around X
         const y2 = c.y * cosX - z1 * sinX;
         const z2 = z1 * cosX + c.y * sinX;
 
@@ -91,10 +85,9 @@ export function SkillTagSphere() {
         const el = nodes[i];
         if (!el) continue;
 
-        // Perspective projection
-        const depth = (z2 + 1) * 0.5; // 0 (back) .. 1 (front)
-        const scale = 0.68 + depth * 0.48;
-        const opacity = 0.24 + depth * 0.76;
+        const depth = (z2 + 1) * 0.5;
+        const scale = 0.78 + depth * 0.42;
+        const opacity = 0.35 + depth * 0.65;
         const px = x1 * sphereRadius;
         const py = y2 * sphereRadius;
 
@@ -106,8 +99,25 @@ export function SkillTagSphere() {
       rafId = requestAnimationFrame(renderFrame);
     };
 
-    rafId = requestAnimationFrame(renderFrame);
-    return () => cancelAnimationFrame(rafId);
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = Boolean(entries[0]?.isIntersecting);
+        if (visible && !inView) {
+          inView = true;
+          if (!rafId) rafId = requestAnimationFrame(renderFrame);
+        } else if (!visible) {
+          inView = false;
+        }
+      },
+      { rootMargin: '150px' }
+    );
+
+    if (stageRef.current) observer.observe(stageRef.current);
+
+    return () => {
+      observer.disconnect();
+      if (rafId) cancelAnimationFrame(rafId);
+    };
   }, [points, reducedMotion]);
 
   useEffect(() => {
@@ -146,9 +156,28 @@ export function SkillTagSphere() {
     setDragging(true);
   };
 
+  const handleKeyDown = (e) => {
+    const r = rotRef.current;
+    if (e.key === 'ArrowRight') {
+      e.preventDefault();
+      r.vy += 0.04;
+    } else if (e.key === 'ArrowLeft') {
+      e.preventDefault();
+      r.vy -= 0.04;
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      r.vx -= 0.04;
+    } else if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      r.vx += 0.04;
+    }
+  };
+
   return (
     <div
       ref={stageRef}
+      tabIndex={0}
+      onKeyDown={handleKeyDown}
       onPointerDown={handlePointerDown}
       onPointerEnter={() => {
         rotRef.current.hovered = true;
@@ -157,22 +186,20 @@ export function SkillTagSphere() {
         rotRef.current.hovered = false;
       }}
       role="region"
-      aria-label="Interactive 3D skill sphere — drag to rotate"
-      className={`relative mx-auto flex h-[340px] w-full max-w-[540px] touch-none select-none items-center justify-center overflow-hidden rounded-3xl border border-[var(--border-subtle)] bg-[rgba(11,14,22,0.52)] backdrop-blur-xl sm:h-[460px] ${
+      aria-label="Interactive 3D skill sphere — drag or use arrow keys to rotate"
+      className={`relative mx-auto flex h-[320px] w-full max-w-[500px] touch-none select-none items-center justify-center overflow-hidden rounded-3xl border border-[var(--border-subtle)] bg-[var(--bg-glass)] backdrop-blur-xl sm:h-[400px] ${
         dragging ? 'cursor-grabbing' : 'cursor-grab'
       }`}
     >
-      {/* Ambient Sphere Core Glow */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute h-56 w-56 rounded-full opacity-35 blur-[70px]"
+        className="pointer-events-none absolute h-52 w-52 rounded-full opacity-35 blur-[70px]"
         style={{
           background:
             'radial-gradient(circle, rgba(0, 240, 255, 0.35), rgba(184, 255, 46, 0.2) 55%, transparent 75%)',
         }}
       />
 
-      {/* Sphere Center Anchor */}
       <div className="relative h-0 w-0">
         {points.map((item, idx) => (
           <span
@@ -180,18 +207,16 @@ export function SkillTagSphere() {
             ref={(el) => {
               tagRefs.current[idx] = el;
             }}
-            className="absolute top-0 left-0 whitespace-nowrap rounded-full border border-[var(--border-strong)] bg-[rgba(13,16,26,0.88)] px-3.5 py-1.5 font-mono text-[11px] font-medium tracking-wide text-[var(--text-primary)] shadow-[0_8px_20px_rgba(0,0,0,0.45)] transition-colors duration-200 hover:border-[var(--accent-neon)] hover:text-[var(--accent-neon)] will-change-transform sm:text-xs"
+            className="absolute top-0 left-0 whitespace-nowrap rounded-full border border-[var(--border-strong)] bg-[var(--bg-elevated)]/95 px-4 py-1.5 font-mono text-xs font-medium tracking-wide text-[var(--text-primary)] shadow-[0_8px_20px_rgba(0,0,0,0.45)] transition-colors duration-200 hover:border-[var(--accent-neon)] hover:text-[var(--accent-neon)] will-change-transform"
           >
             {item.name}
           </span>
         ))}
       </div>
 
-      {/* Subtle Drag Hint */}
-      <div className="pointer-events-none absolute bottom-4 left-1/2 -translate-x-1/2 rounded-full border border-[var(--border-subtle)] bg-black/40 px-3 py-1 font-mono text-[10px] tracking-[0.2em] uppercase text-[var(--text-muted)]">
+      <div className="pointer-events-none absolute bottom-4 left-1/2 -translate-x-1/2 rounded-full border border-[var(--border-subtle)] bg-black/45 px-3 py-1 font-mono text-xs tracking-[0.18em] uppercase text-[var(--text-muted)]">
         Drag 3D Sphere
       </div>
     </div>
   );
 }
-

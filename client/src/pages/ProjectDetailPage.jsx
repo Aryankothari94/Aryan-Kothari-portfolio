@@ -7,6 +7,7 @@ import { Button, Container, MagneticButton, Tag } from '../components/ui';
 import { getProjectPlaceholderSvgUrl } from '../components/projects/projectVisuals';
 import { projects } from '../data/content';
 import { useReducedMotion } from '../hooks/useReducedMotion';
+import { MOTION } from '../config/motion';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -67,18 +68,21 @@ export default function ProjectDetailPage() {
     hidden: {},
     visible: {
       transition: {
-        staggerChildren: reducedMotion ? 0 : 0.075,
-        delayChildren: reducedMotion ? 0 : 0.12,
+        staggerChildren: reducedMotion ? 0 : MOTION.timing.staggerItem,
+        delayChildren: reducedMotion ? 0 : 0.06,
       },
     },
   };
 
   const itemVariants = {
-    hidden: reducedMotion ? { opacity: 1 } : { opacity: 0, y: 20 },
+    hidden: reducedMotion ? { opacity: 1 } : { opacity: 0, y: 18 },
     visible: {
       opacity: 1,
       y: 0,
-      transition: { duration: reducedMotion ? 0.01 : 0.55, ease: [0.16, 1, 0.3, 1] },
+      transition: {
+        duration: reducedMotion ? 0.01 : MOTION.timing.revealDuration,
+        ease: MOTION.easing.framerSnappy,
+      },
     },
   };
 

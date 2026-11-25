@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { useReducedMotion } from '../../hooks/useReducedMotion';
 import { useSmoothScroll } from '../../context/SmoothScrollContext';
+import { MOTION } from '../../config/motion';
 
 export function Preloader({ onRevealStart, onComplete }) {
   const reducedMotion = useReducedMotion();
@@ -47,18 +48,25 @@ export function Preloader({ onRevealStart, onComplete }) {
 
       const tl = gsap.timeline({
         onComplete: () => {
+          try {
+            window.sessionStorage.setItem(MOTION.preloader.sessionKey, '1');
+          } catch {
+            // ignore storage errors
+          }
           unlockScroll();
           onComplete?.();
         },
       });
 
-      // Phase 1 (0s -> 1.6s): 0-100 counter, SVG stroke draw, and GPU progress bar
+      const p = MOTION.preloader;
+
+      // Phase 1: 0-100 counter, SVG stroke draw, and GPU progress bar
       tl.to(
         counter,
         {
           value: 100,
-          duration: 1.55,
-          ease: 'power3.inOut',
+          duration: p.countDuration,
+          ease: MOTION.easing.gsapPowerOut,
           onUpdate: () => {
             if (counterRef.current) {
               counterRef.current.textContent = String(Math.round(counter.value)).padStart(3, '0');
@@ -71,8 +79,8 @@ export function Preloader({ onRevealStart, onComplete }) {
           progressBarRef.current,
           {
             scaleX: 1,
-            duration: 1.55,
-            ease: 'power3.inOut',
+            duration: p.countDuration,
+            ease: MOTION.easing.gsapPowerOut,
           },
           0
         )
@@ -80,51 +88,51 @@ export function Preloader({ onRevealStart, onComplete }) {
           strokeTextRef.current,
           {
             strokeDashoffset: 0,
-            duration: 1.4,
-            ease: 'power2.inOut',
+            duration: p.strokeDuration,
+            ease: MOTION.easing.gsapPowerOut,
           },
-          0.08
+          0.02
         )
         .to(
           underlinePath,
           {
             strokeDashoffset: 0,
-            duration: 1.25,
-            ease: 'power3.out',
+            duration: p.underlineDuration,
+            ease: MOTION.easing.gsapPowerOut,
           },
-          0.25
+          0.06
         )
         .to(
           fillTextRef.current,
           {
             opacity: 1,
-            duration: 0.45,
+            duration: p.fillDuration,
             ease: 'power2.out',
           },
-          1.18
+          p.fillStartAt
         )
-        // Phase 2 (1.65s -> 2.48s): Fade typography up + clip-path curtain reveal into hero
+        // Phase 2: Fade typography up + clip-path curtain reveal (~1.28s total)
         .to(
           contentWrapRef.current,
           {
-            y: -28,
+            y: -20,
             opacity: 0,
-            duration: 0.35,
+            duration: p.textExitDuration,
             ease: 'power2.in',
           },
-          1.62
+          p.textExitAt
         )
         .to(
           overlayRef.current,
           {
             clipPath: 'inset(0% 0% 100% 0%)',
-            duration: 0.78,
-            ease: 'expo.inOut',
+            duration: p.curtainDuration,
+            ease: MOTION.easing.gsapWipe,
             onStart: () => {
               onRevealStart?.();
             },
           },
-          1.7
+          p.curtainStartAt
         );
     }, overlayRef);
 

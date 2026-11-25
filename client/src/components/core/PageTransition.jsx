@@ -4,6 +4,7 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useReducedMotion } from '../../hooks/useReducedMotion';
 import { useSmoothScroll } from '../../context/SmoothScrollContext';
+import { MOTION } from '../../config/motion';
 
 export function PageTransition({ children }) {
   const location = useLocation();
@@ -66,20 +67,22 @@ export function PageTransition({ children }) {
       },
     });
 
-    // Phase 1: Curtain wipes in from bottom
+    const pt = MOTION.pageTransition;
+
+    // Phase 1: Curtain wipes in from bottom (~0.27s)
     tl.to(strip, {
       yPercent: 0,
-      duration: 0.28,
-      ease: 'power4.inOut',
+      duration: pt.stripInDuration,
+      ease: MOTION.easing.gsapWipe,
     })
       .to(
         curtain,
         {
           yPercent: 0,
-          duration: 0.34,
-          ease: 'power4.inOut',
+          duration: pt.curtainInDuration,
+          ease: MOTION.easing.gsapWipe,
         },
-        0.05
+        pt.curtainInOffset
       )
       // Midpoint swap: update route & reset scroll
       .add(() => {
@@ -91,24 +94,24 @@ export function PageTransition({ children }) {
         }
         requestAnimationFrame(() => ScrollTrigger.refresh());
       })
-      // Phase 2: Curtain wipes out upward
+      // Phase 2: Curtain wipes out upward (~0.26s, <= 0.55s total)
       .to(
         curtain,
         {
           yPercent: -100,
-          duration: 0.38,
-          ease: 'power4.inOut',
+          duration: pt.curtainOutDuration,
+          ease: MOTION.easing.gsapWipe,
         },
-        '+=0.04'
+        `+=${pt.pauseAtMidpoint}`
       )
       .to(
         strip,
         {
           yPercent: -100,
-          duration: 0.34,
-          ease: 'power4.inOut',
+          duration: pt.stripOutDuration,
+          ease: MOTION.easing.gsapWipe,
         },
-        '-=0.34'
+        `-=${pt.stripOutDuration}`
       );
 
     return () => {

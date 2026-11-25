@@ -162,10 +162,10 @@ export function FooterMiniGame() {
 
   return (
     <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-glass)] p-3.5 backdrop-blur-md">
-      <div className="mb-2 flex items-center justify-between gap-4 font-mono text-[10px] tracking-[0.18em] uppercase">
-        <span className="text-[var(--accent-neon)]">Bug Dodge // Mini-Game</span>
+      <div className="mb-2 flex items-center justify-between gap-4 font-mono text-xs tracking-wider uppercase">
+        <span className="text-[var(--accent-neon)]">Bug Dodge</span>
         <span className="tabular-nums text-[var(--text-secondary)]">
-          Score: {score} · Best: {best}
+          {score} · Best {best}
         </span>
       </div>
 
@@ -179,10 +179,16 @@ export function FooterMiniGame() {
             jump();
           }
         }}
-        aria-label="Play Bug Dodge mini-game. Click or press Space to jump."
+        aria-label={
+          status === 'gameover'
+            ? 'Bug Hit! Tap to Retry'
+            : reducedMotion
+              ? 'Tap to Play'
+              : 'Tap or Space to Jump'
+        }
         className="relative cursor-pointer overflow-hidden rounded-xl border border-[var(--border-subtle)] bg-[#06070B]/80 focus-visible:outline-2 focus-visible:outline-[var(--accent-neon)]"
       >
-        <canvas ref={canvasRef} width={280} height={104} className="block h-[104px] w-[280px]" />
+        <canvas ref={canvasRef} width={280} height={104} className="block h-[104px] w-full max-w-[280px]" />
 
         {status !== 'playing' && (
           <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/55 text-center">

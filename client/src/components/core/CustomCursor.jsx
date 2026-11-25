@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useReducedMotion } from '../../hooks/useReducedMotion';
+import { MOTION } from '../../config/motion';
 
 const INTERACTIVE_SELECTOR =
   'a, button, [role="button"], input, textarea, select, label[for], [data-cursor="pointer"]';
@@ -177,19 +178,34 @@ export function CustomCursor() {
       state.prevX = state.mouseX;
       state.prevY = state.mouseY;
 
-      state.velX += (dx - state.velX) * 0.35;
-      state.velY += (dy - state.velY) * 0.35;
+      const {
+        dotLerp,
+        ringLerp,
+        scaleLerp,
+        velocitySmoothing,
+        squashMaxStretch,
+        squashMaxSquash,
+        particleMaxCount,
+        particleSpeedThreshold,
+        particleDecayMin,
+        particleDecayRange,
+        particleRadiusMin,
+        particleRadiusRange,
+      } = MOTION.cursor;
+
+      state.velX += (dx - state.velX) * velocitySmoothing;
+      state.velY += (dy - state.velY) * velocitySmoothing;
 
       const speed = Math.hypot(state.velX, state.velY);
 
-      // Eased positions (no layout reads)
-      state.dotX += (state.mouseX - state.dotX) * 0.65;
-      state.dotY += (state.mouseY - state.dotY) * 0.65;
-      state.ringX += (state.mouseX - state.ringX) * 0.16;
-      state.ringY += (state.mouseY - state.ringY) * 0.16;
+      // Instant dot + snappy trailing ring (no layout reads)
+      state.dotX = dotLerp >= 1 ? state.mouseX : state.dotX + (state.mouseX - state.dotX) * dotLerp;
+      state.dotY = dotLerp >= 1 ? state.mouseY : state.dotY + (state.mouseY - state.dotY) * dotLerp;
+      state.ringX += (state.mouseX - state.ringX) * ringLerp;
+      state.ringY += (state.mouseY - state.ringY) * ringLerp;
 
       const pressFactor = state.pressed ? 0.85 : 1;
-      state.ringScale += (state.targetScale * pressFactor - state.ringScale) * 0.18;
+      state.ringScale += (state.targetScale * pressFactor - state.ringScale) * scaleLerp;
 
       if (dotRef.current) {
         dotRef.current.style.transform = `translate3d(${state.dotX}px, ${state.dotY}px, 0) translate(-50%, -50%) scale(${pressFactor})`;
@@ -199,9 +215,9 @@ export function CustomCursor() {
         if (state.mode === 'view') {
           ringRef.current.style.transform = `translate3d(${state.ringX}px, ${state.ringY}px, 0) translate(-50%, -50%) scale(${state.ringScale})`;
         } else {
-          const stretch = Math.min(speed * 0.012, 0.42);
-          const squash = Math.min(speed * 0.006, 0.2);
-          const angle = speed > 0.35 ? Math.atan2(state.velY, state.velX) : 0;
+          const stretch = Math.min(speed * 0.008, squashMaxStretch);
+          const squash = Math.min(speed * 0.004, squashMaxSquash);
+          const angle = speed > 0.5 ? Math.atan2(state.velY, state.velX) : 0;
           const sx = state.ringScale * (1 + stretch);
           const sy = state.ringScale * (1 - squash);
 
@@ -209,19 +225,19 @@ export function CustomCursor() {
         }
       }
 
-      // Particle trail emission
-      if (state.visible && speed > 1.8 && state.frameCount % 2 === 0) {
-        if (state.particles.length >= 44) {
+      // Shorter, subtler particle trail
+      if (state.visible && speed > particleSpeedThreshold && state.frameCount % 2 === 0) {
+        if (state.particles.length >= particleMaxCount) {
           state.particles.shift();
         }
         state.particles.push({
-          x: state.dotX + (Math.random() - 0.5) * 4,
-          y: state.dotY + (Math.random() - 0.5) * 4,
-          vx: -state.velX * 0.06 + (Math.random() - 0.5) * 0.6,
-          vy: -state.velY * 0.06 + (Math.random() - 0.5) * 0.6,
+          x: state.dotX + (Math.random() - 0.5) * 3,
+          y: state.dotY + (Math.random() - 0.5) * 3,
+          vx: -state.velX * 0.03 + (Math.random() - 0.5) * 0.4,
+          vy: -state.velY * 0.03 + (Math.random() - 0.5) * 0.4,
           life: 1,
-          decay: 0.038 + Math.random() * 0.025,
-          radius: 1.3 + Math.random() * 1.4,
+          decay: particleDecayMin + Math.random() * particleDecayRange,
+          radius: particleRadiusMin + Math.random() * particleRadiusRange,
           color: Math.random() > 0.35 ? '184, 255, 46' : '0, 240, 255',
         });
       }

@@ -3,6 +3,7 @@ import Lenis from 'lenis';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useReducedMotion } from '../hooks/useReducedMotion';
+import { MOTION } from '../config/motion';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -25,29 +26,42 @@ export function SmoothScrollProvider({ children }) {
       return undefined;
     }
 
-    const lenis = new Lenis({
-      lerp: 0.09,
-      smoothWheel: true,
-      wheelMultiplier: 1,
-      touchMultiplier: 1.5,
-    });
+    let lenis = null;
+    let update = null;
+    let cancelled = false;
 
-    lenisRef.current = lenis;
-    setLenisInstance(lenis);
+    const initLenis = () => {
+      if (cancelled) return;
+      lenis = new Lenis({
+        lerp: MOTION.scroll.lenisLerp,
+        smoothWheel: true,
+        wheelMultiplier: MOTION.scroll.lenisWheelMultiplier,
+        touchMultiplier: MOTION.scroll.lenisTouchMultiplier,
+      });
 
-    lenis.on('scroll', ScrollTrigger.update);
+      lenisRef.current = lenis;
+      setLenisInstance(lenis);
 
-    const update = (time) => {
-      lenis.raf(time * 1000);
+      lenis.on('scroll', ScrollTrigger.update);
+
+      update = (time) => {
+        lenis.raf(time * 1000);
+      };
+
+      gsap.ticker.add(update);
+      gsap.ticker.lagSmoothing(0);
     };
 
-    gsap.ticker.add(update);
-    gsap.ticker.lagSmoothing(0);
+    const timer = window.setTimeout(initLenis, 250);
 
     return () => {
-      gsap.ticker.remove(update);
-      lenis.off('scroll', ScrollTrigger.update);
-      lenis.destroy();
+      cancelled = true;
+      window.clearTimeout(timer);
+      if (update) gsap.ticker.remove(update);
+      if (lenis) {
+        lenis.off('scroll', ScrollTrigger.update);
+        lenis.destroy();
+      }
       lenisRef.current = null;
       setLenisInstance(null);
     };
@@ -58,7 +72,10 @@ export function SmoothScrollProvider({ children }) {
       lenis: lenisInstance,
       scrollTo: (target, options = {}) => {
         if (lenisRef.current) {
-          lenisRef.current.scrollTo(target, { duration: 1.15, ...options });
+          lenisRef.current.scrollTo(target, {
+            duration: MOTION.scroll.scrollToDuration,
+            ...options,
+          });
           return;
         }
         if (typeof target === 'number') {

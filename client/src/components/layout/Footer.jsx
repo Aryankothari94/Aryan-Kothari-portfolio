@@ -6,6 +6,7 @@ import { FooterMiniGame } from './FooterMiniGame';
 import { personalInfo, socials } from '../../data/content';
 import { useSmoothScroll } from '../../context/SmoothScrollContext';
 import { useReducedMotion } from '../../hooks/useReducedMotion';
+import { MOTION } from '../../config/motion';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -105,7 +106,7 @@ export function Footer() {
             trigger: wordmarkRef.current,
             start: 'top 92%',
             end: 'bottom 80%',
-            scrub: 0.5,
+            scrub: MOTION.scroll.scrub,
           },
         }
       );
@@ -148,7 +149,7 @@ export function Footer() {
                   >
                     <Icon />
                     <span>{item.name}</span>
-                    <span className="text-[10px] opacity-70">(TODO)</span>
+                    <span className="text-xs">(TODO)</span>
                   </span>
                 );
               }
@@ -175,7 +176,7 @@ export function Footer() {
           {/* Live Local Time Clock + Rocket Launch Button */}
           <div className="flex items-center gap-5">
             <div className="text-right font-mono">
-              <p className="text-[10px] tracking-[0.22em] uppercase text-[var(--text-muted)]">
+              <p className="text-xs tracking-[0.2em] uppercase text-[var(--text-muted)]">
                 Banswara, IN (IST)
               </p>
               <p className="text-sm font-semibold tabular-nums text-[var(--text-primary)]">
@@ -214,7 +215,7 @@ export function Footer() {
         >
           <div
             className="font-display font-extrabold leading-[0.9] tracking-[-0.04em] text-transparent [-webkit-text-stroke:1.5px_rgba(244,246,251,0.2)]"
-            style={{ fontSize: 'clamp(2.5rem, 10.5vw, 9.5rem)' }}
+            style={{ fontSize: 'clamp(1.7rem, 8.8vw, 9.5rem)' }}
           >
             {personalInfo.name.toUpperCase()}
           </div>
@@ -224,14 +225,14 @@ export function Footer() {
             style={reducedMotion ? undefined : { clipPath: 'inset(0% 100% 0% 0%)' }}
             className="pointer-events-none absolute inset-0 py-2 font-display font-extrabold leading-[0.9] tracking-[-0.04em] text-gradient-secondary will-change-[clip-path]"
           >
-            <span style={{ fontSize: 'clamp(2.5rem, 10.5vw, 9.5rem)' }}>
+            <span style={{ fontSize: 'clamp(1.7rem, 8.8vw, 9.5rem)' }}>
               {personalInfo.name.toUpperCase()}
             </span>
           </div>
         </div>
 
         {/* Bottom Copyright Row */}
-        <div className="flex flex-wrap items-center justify-between gap-4 border-t border-[var(--border-subtle)] pt-6 font-mono text-[11px] tracking-[0.16em] uppercase text-[var(--text-muted)]">
+        <div className="flex flex-wrap items-center justify-between gap-4 border-t border-[var(--border-subtle)] pt-6 font-mono text-xs tracking-[0.14em] uppercase text-[var(--text-muted)]">
           <span>© 2026 {personalInfo.name}</span>
           <span>MERN Stack · Java DSA · AI Workflow Automation</span>
         </div>

@@ -1,9 +1,7 @@
-import { Container, MagneticButton, Tag } from '../ui';
+import { Container, MagneticButton } from '../ui';
 import { KineticNameBackdrop } from '../hero/KineticNameBackdrop';
-import { RoleTypewriterGlitch } from '../hero/RoleTypewriterGlitch';
 import { HeroPortrait } from '../hero/HeroPortrait';
-import { TechMarquee } from '../hero/TechMarquee';
-import { about, personalInfo } from '../../data/content';
+import { personalInfo } from '../../data/content';
 import { useSmoothScroll } from '../../context/SmoothScrollContext';
 
 function ArrowIcon() {
@@ -27,19 +25,17 @@ export function HeroSection({ revealReady = true }) {
     <section
       id="hero"
       data-section="HERO"
-      className="relative z-10 flex min-h-screen flex-col justify-between overflow-hidden pt-20 sm:pt-24"
+      className="relative z-10 flex min-h-screen items-center overflow-hidden pt-24 pb-16 sm:pt-28 sm:pb-20"
     >
-      {/* Main Hero Stage */}
-      <Container className="relative flex flex-1 items-center py-8 sm:py-12">
+      <Container className="relative">
         <div className="relative w-full">
-          {/* Monumental Kinetic Typography Behind Cutout (desktop overlaps behind portrait; mobile stacks cleanly) */}
-          <div className="pointer-events-none relative z-10 mb-4 lg:absolute lg:inset-x-0 lg:top-1/2 lg:mb-0 lg:-translate-y-[58%]">
+          {/* Monumental Kinetic Name Behind Cutout */}
+          <div className="pointer-events-none relative z-10 mb-6 min-h-[76px] sm:min-h-[110px] lg:absolute lg:inset-x-0 lg:top-[8%] lg:mb-0 lg:min-h-[260px]">
             <KineticNameBackdrop name={personalInfo.name} revealReady={revealReady} />
           </div>
 
-          {/* Foreground Grid: Left Bio/Role/CTAs + Right-Aligned Portrait Cutout */}
-          <div className="relative grid items-center gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:gap-6">
-            {/* Portrait first on mobile (stacked), right column on desktop */}
+          {/* Foreground Grid: Value Proposition + 2 CTAs & Portrait Cutout */}
+          <div className="relative grid items-center gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:gap-8">
             <div className="order-1 flex justify-center lg:order-2 lg:justify-end">
               <HeroPortrait
                 revealReady={revealReady}
@@ -47,60 +43,33 @@ export function HeroSection({ revealReady = true }) {
               />
             </div>
 
-            {/* Editorial Left Content */}
-            <div className="order-2 relative z-30 space-y-6 text-center lg:order-1 lg:pt-28 lg:text-left">
-              <div className="flex flex-wrap items-center justify-center gap-2.5 lg:justify-start">
-                <Tag variant="accent" dot>
-                  {personalInfo.availability}
-                </Tag>
-                <Tag variant="gradient">CGPA 8.93 · B.Tech CSE</Tag>
-              </div>
+            <div className="order-2 relative z-30 space-y-8 text-center lg:order-1 lg:pt-32 lg:text-left">
+              <h1 className="sr-only">{personalInfo.name}</h1>
 
-              <div className="space-y-3">
-                <h1 className="sr-only">
-                  {personalInfo.name} — {personalInfo.title}
-                </h1>
-                <RoleTypewriterGlitch />
-                <p className="type-body-lg mx-auto max-w-xl text-[var(--text-secondary)] lg:mx-0">
-                  {about.summaryHighlights[0]} — {about.summaryHighlights[1]}.
-                </p>
-              </div>
+              <p className="type-body-lg mx-auto max-w-xl text-[var(--text-primary)] lg:mx-0">
+                {personalInfo.valueProp}
+              </p>
 
-              <div className="flex flex-wrap items-center justify-center gap-4 pt-2 lg:justify-start">
+              <div className="flex flex-wrap items-center justify-center gap-4 lg:justify-start">
                 <MagneticButton
                   variant="primary"
                   iconRight={<ArrowIcon />}
                   onClick={() => scrollTo('#projects')}
                 >
-                  Explore Projects
+                  View my work
                 </MagneticButton>
 
                 <MagneticButton
                   variant="secondary"
-                  href={`mailto:${personalInfo.email}`}
+                  onClick={() => scrollTo('#contact')}
                 >
-                  Get In Touch
+                  Let&apos;s talk
                 </MagneticButton>
-              </div>
-
-              <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 pt-2 font-mono text-xs text-[var(--text-muted)] lg:justify-start">
-                <span>{personalInfo.location}</span>
-                <span>•</span>
-                <a
-                  href={`mailto:${personalInfo.email}`}
-                  className="transition-colors hover:text-[var(--accent-neon)]"
-                >
-                  {personalInfo.email}
-                </a>
               </div>
             </div>
           </div>
         </div>
       </Container>
-
-      {/* Bottom Tech-Stack Marquee + Scroll Indicator */}
-      <TechMarquee onScrollNext={() => scrollTo('#about')} />
     </section>
   );
 }
-

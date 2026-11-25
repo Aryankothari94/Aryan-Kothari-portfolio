@@ -14,7 +14,7 @@ export function printDevToolsGreeting() {
 `;
 
   console.log(
-    `%c${ascii}\n%c 👋 Hey developer! Inspecting the source?\n%c ${personalInfo.name} — ${personalInfo.title}\n 🎓 B.Tech CSE (8.93 CGPA) · 2 Shipped Production Websites\n 🚀 ${personalInfo.availability}\n 📬 ${personalInfo.email}\n 💡 Tip: Try the Konami Code (↑ ↑ ↓ ↓ ← → ← → B A) on the page!`,
+    `%c${ascii}\n%c 👋 Hey developer! Inspecting the source?\n%c ${personalInfo.name} — ${personalInfo.title}\n 🚀 ${personalInfo.valueProp}\n 📬 ${personalInfo.email}\n 💡 Tip: Try the Konami Code (↑ ↑ ↓ ↓ ← → ← → B A) on the page!`,
     'color: #B8FF2E; font-weight: bold; font-family: monospace; line-height: 1.15;',
     'color: #00F0FF; font-size: 14px; font-weight: bold;',
     'color: #E2E8F0; font-size: 12px; line-height: 1.7;'

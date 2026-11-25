@@ -3,8 +3,9 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Container, SectionHeading } from '../ui';
 import { ProjectCard } from '../projects/ProjectCard';
-import { projects } from '../../data/content';
+import { projects, socials } from '../../data/content';
 import { useReducedMotion } from '../../hooks/useReducedMotion';
+import { MOTION } from '../../config/motion';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -17,6 +18,9 @@ export function ProjectsSection() {
   const pinSectionRef = useRef(null);
   const viewportRef = useRef(null);
   const trackRef = useRef(null);
+
+  const githubItem = socials.find((s) => s.name === 'GitHub');
+  const isGithubReady = githubItem?.url && !githubItem.url.startsWith('TODO');
 
   useEffect(() => {
     const check = () => setIsDesktop(window.innerWidth >= 1024);
@@ -43,10 +47,10 @@ export function ProjectsSection() {
         scrollTrigger: {
           trigger: pinSectionRef.current,
           pin: true,
-          scrub: 0.85,
+          scrub: MOTION.scroll.scrub,
           anticipatePin: 1,
           invalidateOnRefresh: true,
-          end: () => `+=${getDistance() + 360}`,
+          end: () => `+=${getDistance() + MOTION.scroll.horizontalEndPaddingPx}`,
         },
       });
 
@@ -54,16 +58,16 @@ export function ProjectsSection() {
       innerMedia.forEach((el) => {
         gsap.fromTo(
           el,
-          { xPercent: -6 },
+          { xPercent: -5 },
           {
-            xPercent: 6,
+            xPercent: 5,
             ease: 'none',
             scrollTrigger: {
               trigger: el.closest('article') || el,
               containerAnimation: scrollTween,
               start: 'left right',
               end: 'right left',
-              scrub: true,
+              scrub: MOTION.scroll.scrubParallax,
             },
           }
         );
@@ -78,33 +82,47 @@ export function ProjectsSection() {
       ref={pinSectionRef}
       id="projects"
       data-section="WORK"
-      className="relative z-10 overflow-hidden border-t border-[var(--border-subtle)]/60 py-20 lg:flex lg:min-h-screen lg:flex-col lg:justify-center lg:py-24"
+      className="relative z-10 overflow-hidden border-t border-[var(--border-subtle)]/60 py-24 lg:flex lg:min-h-screen lg:flex-col lg:justify-center lg:py-24"
     >
       <Container className="mb-10 shrink-0">
         <div className="flex flex-wrap items-end justify-between gap-6">
           <SectionHeading
             index="04"
             eyebrow="Selected Work"
-            title="Shipped &"
-            accent="Active Builds"
-            subtitle="Production platforms and client systems — click any project to open its full breakdown."
+            title="Featured"
+            accent="Projects"
+            subtitle="My best shipped products and active AI systems — built for real users."
           />
 
-          <span className="hidden font-mono text-xs tracking-[0.2em] uppercase text-[var(--text-muted)] lg:inline-block">
-            {projects.length} Featured Projects · Scroll →
-          </span>
+          {isGithubReady ? (
+            <a
+              href={githubItem.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-mono text-xs tracking-[0.16em] uppercase text-[var(--accent-neon)] transition-opacity hover:opacity-80"
+            >
+              More projects on GitHub ↗
+            </a>
+          ) : (
+            <span
+              title={githubItem?.url}
+              className="font-mono text-xs tracking-[0.16em] uppercase text-[var(--text-muted)]"
+            >
+              More projects on GitHub (Link TODO)
+            </span>
+          )}
         </div>
       </Container>
 
       {enablePinnedHorizontal ? (
         <div ref={viewportRef} className="w-full overflow-hidden pl-12 pr-12">
-          <div ref={trackRef} className="flex w-max items-stretch gap-8 will-change-transform">
-            {projects.map((project, idx) => (
+          <div ref={trackRef} className="flex w-max items-stretch gap-7 will-change-transform">
+            {projects.slice(0, 4).map((project, idx) => (
               <ProjectCard
                 key={project.id}
                 project={project}
                 index={idx}
-                className="w-[640px] shrink-0 xl:w-[700px]"
+                className="w-[520px] shrink-0 xl:w-[580px]"
               />
             ))}
           </div>
@@ -112,7 +130,7 @@ export function ProjectsSection() {
       ) : (
         <Container>
           <div className="grid gap-8 md:grid-cols-2">
-            {projects.map((project, idx) => (
+            {projects.slice(0, 4).map((project, idx) => (
               <ProjectCard key={project.id} project={project} index={idx} />
             ))}
           </div>
@@ -121,4 +139,3 @@ export function ProjectsSection() {
     </section>
   );
 }
-

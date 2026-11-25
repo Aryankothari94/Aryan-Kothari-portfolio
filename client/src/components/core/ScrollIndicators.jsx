@@ -32,43 +32,58 @@ export function ScrollIndicators() {
     };
   }, [location.pathname]);
 
-  // Side section counter via IntersectionObserver (no scroll-loop getBoundingClientRect)
+  // Side section counter via IntersectionObserver + MutationObserver for lazy sections
   useEffect(() => {
-    const nodes = Array.from(document.querySelectorAll('[data-section]'));
-    if (nodes.length === 0) {
-      setSections([]);
-      return undefined;
-    }
+    let observer = null;
 
-    const mapped = nodes.map((el, idx) => ({
-      id: el.id || `section-${idx + 1}`,
-      label: el.getAttribute('data-section') || `0${idx + 1}`,
-      el,
-    }));
-    setSections(mapped);
-    setActiveIndex(0);
+    const bindSections = () => {
+      observer?.disconnect();
+      const nodes = Array.from(document.querySelectorAll('[data-section]'));
+      if (nodes.length === 0) {
+        setSections([]);
+        return;
+      }
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (entry.isIntersecting) {
-            const idx = nodes.indexOf(entry.target);
-            if (idx !== -1) {
-              setActiveIndex(idx);
+      const mapped = nodes.map((el, idx) => ({
+        id: el.id || `section-${idx + 1}`,
+        label: el.getAttribute('data-section') || `0${idx + 1}`,
+        el,
+      }));
+      setSections(mapped);
+
+      observer = new IntersectionObserver(
+        (entries) => {
+          for (const entry of entries) {
+            if (entry.isIntersecting) {
+              const idx = nodes.indexOf(entry.target);
+              if (idx !== -1) {
+                setActiveIndex(idx);
+              }
             }
           }
+        },
+        {
+          rootMargin: '-42% 0px -42% 0px',
+          threshold: 0,
         }
-      },
-      {
-        rootMargin: '-42% 0px -42% 0px',
-        threshold: 0,
-      }
-    );
+      );
 
-    nodes.forEach((node) => observer.observe(node));
+      nodes.forEach((node) => observer.observe(node));
+    };
+
+    bindSections();
+
+    const mainEl = document.querySelector('main');
+    const mutObserver = mainEl
+      ? new MutationObserver(() => {
+          bindSections();
+        })
+      : null;
+    mutObserver?.observe(mainEl, { childList: true });
 
     return () => {
-      observer.disconnect();
+      observer?.disconnect();
+      mutObserver?.disconnect();
     };
   }, [location.pathname]);
 

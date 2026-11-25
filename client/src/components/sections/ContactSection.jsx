@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { Container, MagneticButton, SpotlightCard, Tag } from '../ui';
+import { Container, MagneticButton, ResumeButton, SpotlightCard } from '../ui';
 import { SuccessConfettiCheck } from '../contact/SuccessConfettiCheck';
-import { personalInfo } from '../../data/content';
+import { personalInfo, socials } from '../../data/content';
 import { useReducedMotion } from '../../hooks/useReducedMotion';
 import { useSound } from '../../context/SoundContext';
+import { MOTION } from '../../config/motion';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -18,9 +19,6 @@ function validateForm(values) {
   }
   if (!values.email.trim() || !EMAIL_RE.test(values.email.trim())) {
     errors.email = 'Please enter a valid email address.';
-  }
-  if (values.subject.trim().length > 150) {
-    errors.subject = 'Subject cannot exceed 150 characters.';
   }
   if (!values.message.trim() || values.message.trim().length < 10) {
     errors.message = 'Please enter a message (at least 10 characters).';
@@ -38,7 +36,6 @@ function FloatingField({
   error,
   shakeKey,
   multiline = false,
-  required = false,
 }) {
   const Component = multiline ? 'textarea' : 'input';
   const hasError = Boolean(error);
@@ -53,11 +50,11 @@ function FloatingField({
         value={value}
         onChange={onChange}
         placeholder=" "
-        required={required}
+        required
         aria-invalid={hasError}
         aria-describedby={hasError ? `${id}-error` : undefined}
         className={`peer w-full rounded-xl border bg-white/[0.03] px-4 pt-6 pb-2.5 text-sm text-[var(--text-primary)] outline-none transition-colors duration-200 ${
-          multiline ? 'min-h-[128px] resize-y' : ''
+          multiline ? 'min-h-[124px] resize-y' : ''
         } ${
           hasError
             ? 'border-rose-400/80 focus:border-rose-400'
@@ -89,17 +86,16 @@ export function ContactSection() {
   const headingRef = useRef(null);
   const letterRefs = useRef([]);
 
-  const [values, setValues] = useState({ name: '', email: '', subject: '', message: '' });
+  const [values, setValues] = useState({ name: '', email: '', message: '' });
   const [fieldErrors, setFieldErrors] = useState({});
   const [shakeCount, setShakeCount] = useState(0);
-  const [status, setStatus] = useState('idle'); // 'idle' | 'loading' | 'success'
+  const [status, setStatus] = useState('idle');
   const [serverError, setServerError] = useState('');
   const [successWarning, setSuccessWarning] = useState('');
   const [copied, setCopied] = useState(false);
 
   const headingWords = ["Let's", 'work', 'together'];
 
-  // Per-letter wave animation on scroll entry
   useEffect(() => {
     if (reducedMotion || !headingRef.current) return undefined;
 
@@ -109,17 +105,17 @@ export function ContactSection() {
     const ctx = gsap.context(() => {
       gsap.fromTo(
         letters,
-        { y: 55, opacity: 0, rotateZ: 6 },
+        { y: 42, opacity: 0, rotateZ: 4 },
         {
           y: 0,
           opacity: 1,
           rotateZ: 0,
-          duration: 0.75,
-          stagger: 0.028,
-          ease: 'back.out(1.6)',
+          duration: MOTION.timing.revealDuration,
+          stagger: MOTION.timing.staggerChar,
+          ease: MOTION.easing.gsapSnappy,
           scrollTrigger: {
             trigger: headingRef.current,
-            start: 'top 82%',
+            start: 'top 84%',
             once: true,
           },
         }
@@ -179,7 +175,7 @@ export function ContactSection() {
       setSuccessWarning(data.warning || '');
       setStatus('success');
       playSuccess();
-      setValues({ name: '', email: '', subject: '', message: '' });
+      setValues({ name: '', email: '', message: '' });
       setFieldErrors({});
     } catch {
       setServerError('Network error — please check your connection or email directly.');
@@ -193,7 +189,7 @@ export function ContactSection() {
       setCopied(true);
       window.setTimeout(() => setCopied(false), 1800);
     } catch {
-      // Clipboard blocked
+      // ignore
     }
   };
 
@@ -203,10 +199,9 @@ export function ContactSection() {
     <section
       id="contact"
       data-section="CONTACT"
-      className="relative z-10 border-t border-[var(--border-subtle)]/60 py-24 sm:py-32"
+      className="relative z-10 border-t border-[var(--border-subtle)]/60 py-28 sm:py-36"
     >
       <Container className="space-y-14">
-        {/* Giant "Let's work together" Per-Letter Wave Heading */}
         <div ref={headingRef} className="space-y-4">
           <div className="inline-flex items-center gap-3 font-mono text-xs tracking-[0.2em] uppercase text-[var(--text-secondary)]">
             <span className="text-[var(--accent-neon)]">06</span>
@@ -242,60 +237,64 @@ export function ContactSection() {
           </h2>
         </div>
 
-        <div className="grid items-start gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:gap-14">
-          {/* Left: Direct Resume Contact Card */}
+        <div className="grid items-start gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-14">
+          {/* Email + Social Links + Download Resume */}
           <SpotlightCard className="space-y-8">
-            <div className="space-y-3">
-              <Tag variant="accent" dot>
-                {personalInfo.availability}
-              </Tag>
-              <p className="type-body text-[var(--text-secondary)]">
-                Have a Web Developer internship opportunity, freelance build, or MERN project in
-                mind? Drop a message here or reach out directly.
+            <div>
+              <p className="font-mono text-xs tracking-[0.2em] uppercase text-[var(--text-muted)]">
+                Direct Email
               </p>
+              <div className="mt-2 flex flex-wrap items-center gap-3">
+                <a
+                  href={`mailto:${personalInfo.email}`}
+                  className="font-display text-lg font-semibold text-[var(--text-primary)] transition-colors hover:text-[var(--accent-neon)]"
+                >
+                  {personalInfo.email}
+                </a>
+                <button
+                  type="button"
+                  onClick={handleCopyEmail}
+                  className="cursor-pointer rounded-full border border-[var(--border-strong)] px-3 py-1 font-mono text-xs uppercase tracking-wider text-[var(--text-secondary)] transition-colors hover:border-[var(--accent-neon)] hover:text-[var(--accent-neon)]"
+                >
+                  {copied ? 'Copied' : 'Copy'}
+                </button>
+              </div>
             </div>
 
-            <div className="space-y-5 border-t border-[var(--border-subtle)] pt-6">
-              <div>
-                <p className="font-mono text-[11px] tracking-[0.2em] uppercase text-[var(--text-muted)]">
-                  Email
-                </p>
-                <div className="mt-1 flex flex-wrap items-center gap-3">
-                  <a
-                    href={`mailto:${personalInfo.email}`}
-                    className="font-display text-lg font-semibold text-[var(--text-primary)] transition-colors hover:text-[var(--accent-neon)]"
-                  >
-                    {personalInfo.email}
-                  </a>
-                  <button
-                    type="button"
-                    onClick={handleCopyEmail}
-                    className="cursor-pointer rounded-full border border-[var(--border-strong)] px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-wider text-[var(--text-secondary)] transition-colors hover:border-[var(--accent-neon)] hover:text-[var(--accent-neon)]"
-                  >
-                    {copied ? 'Copied' : 'Copy'}
-                  </button>
-                </div>
+            <div className="space-y-3 border-t border-[var(--border-subtle)] pt-6">
+              <p className="font-mono text-xs tracking-[0.2em] uppercase text-[var(--text-muted)]">
+                Socials
+              </p>
+              <div className="flex flex-wrap gap-2.5">
+                {socials.map((item) => {
+                  const isTodo = item.url.startsWith('TODO');
+                  return isTodo ? (
+                    <span
+                      key={item.name}
+                      title={item.url}
+                      className="rounded-full border border-[var(--border-subtle)] px-3.5 py-1.5 font-mono text-xs text-[var(--text-muted)]"
+                    >
+                      {item.name} (TODO)
+                    </span>
+                  ) : (
+                    <a
+                      key={item.name}
+                      href={item.url}
+                      className="rounded-full border border-[var(--border-strong)] px-3.5 py-1.5 font-mono text-xs text-[var(--text-primary)] transition-colors hover:border-[var(--accent-neon)] hover:text-[var(--accent-neon)]"
+                    >
+                      {item.name}
+                    </a>
+                  );
+                })}
               </div>
+            </div>
 
-              <div>
-                <p className="font-mono text-[11px] tracking-[0.2em] uppercase text-[var(--text-muted)]">
-                  Phone
-                </p>
-                <p className="mt-1 font-mono text-sm text-[var(--text-primary)]">
-                  {personalInfo.phone}
-                </p>
-              </div>
-
-              <div>
-                <p className="font-mono text-[11px] tracking-[0.2em] uppercase text-[var(--text-muted)]">
-                  Location
-                </p>
-                <p className="mt-1 text-sm text-[var(--text-secondary)]">{personalInfo.location}</p>
-              </div>
+            <div className="border-t border-[var(--border-subtle)] pt-6">
+              <ResumeButton variant="secondary" />
             </div>
           </SpotlightCard>
 
-          {/* Right: Interactive Form / Success State */}
+          {/* Short 3-Field Form */}
           {status === 'success' ? (
             <SuccessConfettiCheck
               warning={successWarning}
@@ -316,7 +315,6 @@ export function ContactSection() {
                     onChange={handleChange}
                     error={fieldErrors.name}
                     shakeKey={shakeCount}
-                    required
                   />
                   <FloatingField
                     id="contact-email"
@@ -327,30 +325,18 @@ export function ContactSection() {
                     onChange={handleChange}
                     error={fieldErrors.email}
                     shakeKey={shakeCount}
-                    required
                   />
                 </div>
 
                 <FloatingField
-                  id="contact-subject"
-                  name="subject"
-                  label="Subject (Optional)"
-                  value={values.subject}
-                  onChange={handleChange}
-                  error={fieldErrors.subject}
-                  shakeKey={shakeCount}
-                />
-
-                <FloatingField
                   id="contact-message"
                   name="message"
-                  label="Project or Role Details *"
+                  label="How can we work together? *"
                   value={values.message}
                   onChange={handleChange}
                   error={fieldErrors.message}
                   shakeKey={shakeCount}
                   multiline
-                  required
                 />
 
                 {serverError && (
@@ -362,11 +348,7 @@ export function ContactSection() {
                   </div>
                 )}
 
-                <div className="flex flex-wrap items-center justify-between gap-4 pt-2">
-                  <span className="font-mono text-[11px] text-[var(--text-muted)]">
-                    Rate-limited &amp; validated · Direct inbox delivery
-                  </span>
-
+                <div className="flex justify-end pt-2">
                   <MagneticButton
                     type="submit"
                     variant="primary"
@@ -391,4 +373,3 @@ export function ContactSection() {
     </section>
   );
 }
-
